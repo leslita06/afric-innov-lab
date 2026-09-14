@@ -1,0 +1,95 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Où passent vos heures ? Lab IA et métiers de l'accompagnement</title>
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+ :root{--navy:#22254D;--navy2:#1A1C3D;--bleu:#007ABB;--cyan:#00AED4;--teal:#00ADA4;
+       --corail:#F25260;--lav:#B9BCD2;--white:#fff}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--navy);color:#fff;font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh}
+ header{padding:22px 44px 12px;display:flex;align-items:center;gap:22px;
+        border-bottom:1px solid rgba(255,255,255,.12)}
+ header .oeil{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700}
+ h1{font-family:'Funnel Display',sans-serif;font-size:clamp(22px,2.6vw,38px);margin:2px 0 0;font-weight:700;letter-spacing:-.01em}
+ .compte{margin-left:auto;font-size:clamp(15px,1.5vw,22px);color:var(--lav);white-space:nowrap}
+ .compte b{color:#fff;font-size:1.6em;font-family:'Funnel Display',sans-serif}
+ main{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;padding:24px 44px 90px}
+ @media(max-width:900px){main{grid-template-columns:1fr}}
+ .nuage{display:flex;flex-wrap:wrap;gap:12px 14px;align-content:flex-start}
+ .t{background:rgba(0,174,212,.14);border:1px solid rgba(0,174,212,.35);
+    border-radius:12px;padding:10px 16px;line-height:1.25}
+ .t.g{background:var(--cyan);border-color:var(--cyan);color:var(--navy);font-weight:700}
+ .t .x{color:var(--lav);font-size:.72em;margin-left:8px}
+ .t.g .x{color:var(--navy)}
+ section h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+            color:var(--teal);margin:0 0 12px;font-weight:700}
+ section{margin-bottom:26px}
+ .bar{margin-bottom:11px}
+ .bar .lab{display:flex;justify-content:space-between;gap:12px;font-size:14px;margin-bottom:4px;color:#EDEEF6}
+ .piste{height:10px;background:rgba(255,255,255,.10);border-radius:6px;overflow:hidden}
+ .fill{height:100%;background:linear-gradient(90deg,var(--bleu),var(--cyan));border-radius:6px;transition:width .6s ease}
+ .fill.t{background:linear-gradient(90deg,var(--teal),#5FD6CF)}
+ .fill.c{background:linear-gradient(90deg,var(--corail),#F79AA3)}
+ .vide{color:var(--lav);font-size:18px;line-height:1.6}
+ .maisons{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:0 44px 14px}
+ .maisons span{font-size:13px;color:var(--lav);letter-spacing:.10em;text-transform:uppercase}
+ .maisons b{background:rgba(185,188,210,.14);border:1px solid rgba(185,188,210,.28);
+     border-radius:999px;padding:5px 14px;font-size:16px;font-weight:600}
+ footer{position:fixed;bottom:0;left:0;right:0;padding:10px 44px;font-size:11px;
+        letter-spacing:.10em;text-transform:uppercase;color:rgba(185,188,210,.7);
+        background:linear-gradient(transparent,rgba(34,37,77,.95) 40%);display:flex;justify-content:space-between}
+</style></head><body>
+<header><div><div class="oeil">Lab IA et métiers de l'accompagnement</div><h1>Où passent vos heures ?</h1></div>
+ <div class="compte"><b id="n">0</b> <span id="mot">réponse</span></div></header>
+<main>
+ <div><section><h2>Les tâches qui mangent les heures</h2>
+  <div class="nuage" id="nuage"><div class="vide">Scannez le QR de la planche.
+   Vos réponses s'affichent ici, en direct.</div></div></section>
+  <section><h2>Les métiers où passent les heures</h2><div id="metiers"></div></section>
+ </div>
+ <div>
+  <section><h2>Heures par semaine, pour l'équipe</h2><div id="heures"></div></section>
+  <section><h2>Où en est votre structure avec l'IA</h2><div id="ia"></div></section>
+  <section><h2>Ce qui empêche d'automatiser</h2><div id="freins"></div></section>
+  <section><h2>Pays représentés</h2><div id="pays"></div></section>
+ </div>
+</main>
+<div class="maisons" id="maisons"></div>
+<footer><span>Afric'innov Summit 2026 &nbsp;·&nbsp; Lomé, 5 au 7 novembre</span><span>Mstudio</span></footer>
+<script>
+const SRC = "mur.json";
+function barres(cible, paires, classe){
+  const max = Math.max(1, ...paires.map(p => p[1]));
+  cible.innerHTML = paires.map(([k, v]) => `<div class="bar">
+    <div class="lab"><span>${k}</span><span>${v}</span></div>
+    <div class="piste"><div class="fill ${classe}" style="width:${v / max * 100}%"></div></div>
+  </div>`).join("") || '<div class="vide" style="font-size:14px">En attente.</div>';
+}
+async function tic(){
+  try{
+    const d = await (await fetch(SRC + "?t=" + Date.now(), {cache:"no-store"})).json();
+    document.getElementById("n").textContent = d.repondants;
+    document.getElementById("mot").textContent = d.repondants > 1 ? "réponses" : "réponse";
+    if (d.taches.length){
+      const max = Math.max(...d.taches.map(t => t.n));
+      document.getElementById("nuage").innerHTML = d.taches.map(t => {
+        const gros = t.n === max && max > 1;
+        const taille = 16 + (t.n / max) * 14;
+        return `<div class="t ${gros ? "g" : ""}" style="font-size:${taille}px">
+          ${t.texte.replace(/[<>&]/g, "")}${t.n > 1 ? `<span class="x">×${t.n}</span>` : ""}</div>`;
+      }).join("");
+    }
+    barres(document.getElementById("metiers"), d.metiers, "");
+    barres(document.getElementById("heures"), d.heures, "t");
+    barres(document.getElementById("ia"), d.ia, "t");
+    barres(document.getElementById("freins"), d.freins, "c");
+    barres(document.getElementById("pays"), d.pays, "");
+    const m = document.getElementById("maisons");
+    m.innerHTML = (d.maisons || []).length
+      ? "<span>Structures présentes</span>" + d.maisons.map(x =>
+          "<b>" + x.replace(/[<>&]/g, "") + "</b>").join("")
+      : "";
+  }catch(e){}
+}
+tic(); setInterval(tic, 8000);
+</script></body></html>
