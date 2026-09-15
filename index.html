@@ -13,8 +13,9 @@
  h1{font-family:'Funnel Display',sans-serif;font-size:clamp(22px,2.6vw,38px);margin:2px 0 0;font-weight:700;letter-spacing:-.01em}
  .compte{margin-left:auto;font-size:clamp(15px,1.5vw,22px);color:var(--lav);white-space:nowrap}
  .compte b{color:#fff;font-size:1.6em;font-family:'Funnel Display',sans-serif}
- main{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;padding:24px 44px 90px}
- @media(max-width:900px){main{grid-template-columns:1fr}}
+ main{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:30px;padding:24px 44px 90px}
+ @media(max-width:1100px){main{grid-template-columns:1fr 1fr}}
+ @media(max-width:760px){main{grid-template-columns:1fr}}
  .nuage{display:flex;flex-wrap:wrap;gap:12px 14px;align-content:flex-start}
  .t{background:rgba(0,174,212,.14);border:1px solid rgba(0,174,212,.35);
     border-radius:12px;padding:10px 16px;line-height:1.25}
@@ -50,8 +51,14 @@
  <div>
   <section><h2>Heures par semaine, pour l'équipe</h2><div id="heures"></div></section>
   <section><h2>Où en est votre structure avec l'IA</h2><div id="ia"></div></section>
-  <section><h2>Ce qui empêche d'automatiser</h2><div id="freins"></div></section>
+  <section><h2>Où vivent vos données de suivi</h2><div id="donnees"></div></section>
+  <section><h2>Une règle d'usage de l'IA</h2><div id="cadre"></div></section>
   <section><h2>Pays représentés</h2><div id="pays"></div></section>
+ </div>
+ <div>
+  <section><h2>Les outils déjà en place</h2><div id="outils"></div></section>
+  <section><h2>Les compétences déjà dans l'équipe</h2><div id="competences"></div></section>
+  <section><h2>Ce qui empêche d'automatiser</h2><div id="freins"></div></section>
  </div>
 </main>
 <div class="maisons" id="maisons"></div>
@@ -83,6 +90,10 @@ async function tic(){
     barres(document.getElementById("heures"), d.heures, "t");
     barres(document.getElementById("ia"), d.ia, "t");
     barres(document.getElementById("freins"), d.freins, "c");
+    barres(document.getElementById("outils"), d.outils || [], "");
+    barres(document.getElementById("competences"), d.competences || [], "t");
+    barres(document.getElementById("donnees"), d.donnees || [], "t");
+    barres(document.getElementById("cadre"), d.cadre || [], "t");
     barres(document.getElementById("pays"), d.pays, "");
     const m = document.getElementById("maisons");
     m.innerHTML = (d.maisons || []).length
